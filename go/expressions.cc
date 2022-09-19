@@ -6297,6 +6297,7 @@ Binary_expression::lower_struct_comparison(Gogo* gogo,
   Expression* ret = Expression::make_boolean(true, loc);
   const Struct_field_list* fields = st->fields();
   unsigned int field_index = 0;
+  bool first_nonsink = true;
   for (Struct_field_list::const_iterator pf = fields->begin();
        pf != fields->end();
        ++pf, ++field_index)
@@ -6304,7 +6305,7 @@ Binary_expression::lower_struct_comparison(Gogo* gogo,
       if (Gogo::is_sink_name(pf->field_name()))
 	continue;
 
-      if (field_index > 0)
+      if (!first_nonsink)
 	{
 	  if (left_temp == NULL)
 	    left = left->copy();
@@ -6315,6 +6316,7 @@ Binary_expression::lower_struct_comparison(Gogo* gogo,
 	  else
 	    right = Expression::make_temporary_reference(right_temp, loc);
 	}
+      first_nonsink = false;
       Expression* f1 = Expression::make_field_reference(left, field_index,
 							loc);
       Expression* f2 = Expression::make_field_reference(right, field_index,
